@@ -1,12 +1,12 @@
 <VirtualHost *:<%= @params[:server_port] || node['apache']['listen_ports'].first %>>
   ServerName <%= @params[:server_name] %>
-  
+
   <% if @params[:server_aliases] -%>
   ServerAlias <%= @params[:server_aliases].join " " %>
   <% end -%>
   DocumentRoot /home/<%= @params[:name] %>/public_html
 
-  <Directory /home/<%= @params[:name] %>/public_html %>>
+  <Directory /home/<%= @params[:name] %>/public_html >
     Options <%= [@params[:directory_options] || "FollowSymLinks" ].flatten.join " " %>
     AllowOverride <%= [@params[:allow_override] || "None" ].flatten.join " " %>
   <% if node['apache']['version'] == '2.4' -%>
