@@ -1,0 +1,59 @@
+<VirtualHost *:<%= @params[:server_port] || node['apache']['listen_ports'].first %>>
+  ServerName <%= @params[:server_name] %>
+  <% if @params[:server_aliases] -%>
+  ServerAlias <%= @params[:server_aliases].join " " %>
+  <% end -%>
+  DocumentRoot <%= @params[:docroot] %>
+
+  <Directory <%= @params[:docroot] %>>
+    Options <%= [@params[:directory_options] || "FollowSymLinks" ].flatten.join " " %>
+    AllowOverride <%= [@params[:allow_override] || "None" ].flatten.join " " %>
+  <% if node['apache']['version'] == '2.4' -%>
+    Require all granted
+  <% else -%>
+    Order allow,deny
+    Allow from all
+  <% end -%>
+  </Directory>
+
+  <Directory />
+    Options FollowSymLinks
+    AllowOverride None
+  </Directory>
+
+  <Location /server-status>
+    SetHandler server-status
+
+  <% if node['apache']['version'] == '2.4' -%>
+    Require local
+  <% else -%>
+    Order Deny,Allow
+    Deny from all
+    Allow from 127.0.0.1
+  <% end -%>
+
+  </Location>
+
+  <%- if node['apache']['version'] == '2.4' -%>
+  LogLevel info
+  <%- else -%>
+  LogLevel info
+  <%- end -%>
+
+  ErrorLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-error.log
+  CustomLog <%= node['apache']['log_dir'] %>/<%= @params[:name] %>-access.log combined
+
+  <% if @params[:directory_index] -%>
+  DirectoryIndex <%= [@params[:directory_index]].flatten.join " " %>
+  <% end -%>
+
+  <IfModule mod_fastcgi.c>
+  AddType application/x-httpd-fastphp5 .php
+  Action application/x-httpd-fastphp5 /php5-fcgi
+  Alias /php5-fcgi /usr/lib/cgi-bin/php5-fcgi
+  FastCgiExternalServer /usr/lib/cgi-bin/php5-fcgi -socket /var/run/php-fpm-joomla.sock -pass-header Authorization
+  <Directory /usr/lib/cgi-bin>
+    Require all granted
+  </Directory>
+</IfModule>
+</VirtualHost>
