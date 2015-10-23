@@ -1,11 +1,12 @@
 <VirtualHost *:<%= @params[:server_port] || node['apache']['listen_ports'].first %>>
   ServerName <%= @params[:server_name] %>
+  
   <% if @params[:server_aliases] -%>
   ServerAlias <%= @params[:server_aliases].join " " %>
   <% end -%>
-  DocumentRoot <%= @params[:docroot] %>
+  DocumentRoot /home/<%= @params[:name] %>/public_html
 
-  <Directory <%= @params[:docroot] %>>
+  <Directory /home/<%= @params[:name] %>/public_html %>>
     Options <%= [@params[:directory_options] || "FollowSymLinks" ].flatten.join " " %>
     AllowOverride <%= [@params[:allow_override] || "None" ].flatten.join " " %>
   <% if node['apache']['version'] == '2.4' -%>
@@ -51,7 +52,7 @@
   AddType application/x-httpd-fastphp5 .php
   Action application/x-httpd-fastphp5 /php5-fcgi
   Alias /php5-fcgi /usr/lib/cgi-bin/php5-fcgi
-  FastCgiExternalServer /usr/lib/cgi-bin/php5-fcgi -socket /var/run/php-fpm-joomla.sock -pass-header Authorization
+  FastCgiExternalServer /usr/lib/cgi-bin/php5-fcgi -socket /var/run/php-fpm-<%= @params[:name] %>.sock -pass-header Authorization
   <Directory /usr/lib/cgi-bin>
     Require all granted
   </Directory>

@@ -1,7 +1,10 @@
 {
   "run_list": [
-  	"lamp-fpm"
+  	"lamp-fpm::sites"
   ],
+  "lamp-fpm": {
+  	"sites": "joomla3"
+  },
   "automatic": {
     "ipaddress": "192.168.175.153"
   }
