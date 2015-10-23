@@ -100,12 +100,21 @@ include_recipe 'php-fpm'
 
 php_fpm_pool "joomla" do
   process_manager "dynamic"
-  max_requests 5000
+
+  max_requests 1000
+  max_children 30
+  max_spare_servers 30
+  start_servers 10
   
   user 'joomla'
   group 'joomla'
 
-  php_options 'php_admin_flag[log_errors]' => 'on', 'php_admin_value[memory_limit]' => '128M'
+  php_options 'php_admin_flag[log_errors]' => 'on', 'php_admin_value[memory_limit]' => '32M'
 end
 
-package 'php5-mysql'
+['php5-mysql', 'php5-apcu'].each do |pkg|
+  package pkg do
+    notifies :restart, "service[php-fpm]"
+  end
+end
+
