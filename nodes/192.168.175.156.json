@@ -1,0 +1,19 @@
+{
+  "run_list": [
+    "lamp-fpm::sites"
+  ],
+  "lamp-fpm": {
+    "mysql": {
+      "initial_root_password": "Password2"
+    },
+    "sites": { 
+      "application_name": "joomla",
+      "server_name": "joomla.local",
+      "server_aliases": ["192.168.175.156"],
+      "mysql_password": "Password1"
+   }
+  },
+  "automatic": {
+    "ipaddress": "192.168.175.156"
+  }
+}

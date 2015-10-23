@@ -1,5 +1,10 @@
-define :php_environment, :server_name => nil do
+define :php_environment, :server_name => nil, :server_aliases => nil, :mysql_password => nil do
+
 	servername = params[:server_name] || params[:name] + ".local"
+	serveraliases = params[:server_aliases]
+	mysqlpassword = params[:mysql_password]
+
+	username = params[:name]
 
 	user params[:name] do
 		action :create
@@ -15,12 +20,14 @@ define :php_environment, :server_name => nil do
 		action :create
 
 		owner params[:name]
+		group params[:name]
 	end
 
 	web_app params[:name] do
 		template 'web_app.conf.erb'
 		
 		server_name servername
+		server_aliases serveraliases
 
 		allow_override 'All'
 	end
@@ -28,7 +35,7 @@ define :php_environment, :server_name => nil do
 	connection_info = {
 		:host => '127.0.0.1',
 		:username => 'root',
-		:password => 'cXSjjAP82'
+		:password => node['lamp-fpm']['mysql']['initial_root_password']
 	}
 
 
@@ -41,7 +48,7 @@ define :php_environment, :server_name => nil do
 	mysql_database_user params[:name] do
 		connection connection_info
 
-		password 'vXJ28SpxLq'
+		password mysqlpassword
 		action :create
 	end
 
@@ -69,8 +76,8 @@ define :php_environment, :server_name => nil do
 		max_spare_servers 30
 		start_servers 10
 
-		user params[:name]
-		group params[:name]
+		user username
+		group username
 
 		php_options 'php_admin_flag[log_errors]' => 'on', 'php_admin_value[memory_limit]' => '32M'
 	end

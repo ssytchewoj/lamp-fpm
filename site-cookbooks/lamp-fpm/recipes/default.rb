@@ -17,10 +17,14 @@ include_recipe 'apache2::mod_alias'
 
 # Install MySQL 5.6
 
+unless node['lamp-fpm']['mysql'] && node['lamp-fpm']['mysql']['initial_root_password'].kind_of?(String)
+  Chef::Application.fatal!("initial_root_password should be specified in node attributes")
+end
+
 mysql_service 'default' do
   port '3306'
   version '5.6'
-  initial_root_password 'cXSjjAP82'
+  initial_root_password node['lamp-fpm']['mysql']['initial_root_password']
   action [:create, :start]
 end
 

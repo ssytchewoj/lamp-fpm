@@ -9,17 +9,23 @@
 
 include_recipe "lamp-fpm::default"
 
-if node['lamp-fpm']['sites'].kind_of? String
-	php_environment node['lamp-fpm']['sites']
-elsif node['lamp-fpm']['sites'].kind_of? Hash
-	php_environment node['lamp-fpm']['sites']['application_name'] do
-		server_name node['lamp-fpm']['sites']['server_name']
+def build_php_environment site
+	unless site['mysql_password']
+		Chef::Application.fatal!("site mysql_password should be specified in node attributes")
 	end
+
+	php_environment site['application_name'] do
+		server_name site['server_name']
+		server_aliases site['server_aliases']
+		mysql_password site['mysql_password']
+	end
+end
+
+if node['lamp-fpm']['sites'].kind_of? Hash
+	build_php_environment node['lamp-fpm']['sites']
 elsif node['lamp-fpm']['sites'].kind_of? Array
 	node['lamp-fpm']['sites'].each do |site|
-		php_environment site['application_name'] do
-			server_name site['server_name']
-		end
+		build_php_environment site
 	end
 end
 
