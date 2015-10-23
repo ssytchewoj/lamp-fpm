@@ -28,6 +28,11 @@ mysql_service 'default' do
   action [:create, :start]
 end
 
+mysql_config 'default' do
+  source 'optimized.cnf.erb'
+  action :create
+end
+
 mysql_client 'default' do
   action :create
 end
